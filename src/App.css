@@ -1009,6 +1009,96 @@
   border-color: var(--cyan-dim);
 }
 
+/* 우측 floating 목차 — 상단 tabs 가 화면 밖으로 사라졌을 때만 표시.
+   accent 색은 case 별로 지정(카드/케이스와 동일 규칙). */
+.case-toc {
+  position: fixed;
+  right: clamp(14px, 2vw, 28px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10000;
+  --acc: var(--cyan);
+  --acc-rgb: 70, 201, 189;
+}
+.case-toc--cyan {
+  --acc: var(--cyan);
+  --acc-rgb: 70, 201, 189;
+}
+.case-toc--amber {
+  --acc: var(--amber);
+  --acc-rgb: 217, 160, 101;
+}
+.case-toc__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 200px;
+  padding: 10px 10px 11px;
+  background: var(--chrome-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  backdrop-filter: blur(8px);
+}
+.case-toc__label {
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  color: var(--text-mute);
+  padding: 0 6px 4px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.case-toc__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.case-toc__item {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  width: 100%;
+  max-width: 180px;
+  text-align: left;
+  padding: 4px 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--text-dim);
+  background: transparent;
+  border: 0;
+  border-left: 2px solid transparent;
+  border-radius: 0 2px 2px 0;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.case-toc__num {
+  flex-shrink: 0;
+  font-size: 9.5px;
+  color: var(--text-mute);
+  letter-spacing: 0.1em;
+}
+.case-toc__text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.case-toc__item:hover {
+  color: var(--acc);
+  border-left-color: var(--acc);
+}
+.case-toc__item--active {
+  color: var(--acc);
+  background: rgba(var(--acc-rgb), 0.08);
+  border-left-color: var(--acc);
+}
+/* 모바일에서는 상단 tabs horizontal scroll 만 사용 */
+@media (max-width: 900px) {
+  .case-toc {
+    display: none;
+  }
+}
+
 .case-full__body {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
@@ -1059,24 +1149,44 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 44px;
 }
 .case-section {
-  scroll-margin-top: 12px;
+  scroll-margin-top: 24px;
+}
+/* 섹션 사이 추가 여백 — 앞 섹션 내용과 다음 타이틀을 명확히 분리 */
+.case-section + .case-section {
+  padding-top: 10px;
 }
 .case-section__label {
   display: flex;
   align-items: center;
-  gap: 9px;
-  margin: 0 0 12px;
-  font-size: 11.5px;
-  letter-spacing: 0.14em;
-  color: var(--acc, var(--amber));
+  gap: 10px;
+  margin: 0 0 18px;
+  font-size: 15px;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  color: var(--acc, var(--cyan));
+}
+.case-section__number {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--text-mute);
+  letter-spacing: 0.12em;
+}
+.case-section__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  /* 바디(14px)보다 2단계 크게 — 모바일에서 과하지 않게 clamp */
+  font-size: clamp(16px, 1.4vw, 19px);
+  letter-spacing: 0.02em;
+  color: var(--text);
 }
 .case-section__bullet {
-  width: 6px;
-  height: 6px;
-  background: currentColor;
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  background: var(--acc, var(--cyan));
   border-radius: 1px;
   transform: rotate(45deg);
 }
@@ -1099,13 +1209,13 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 .case-log-line {
   display: flex;
   gap: 12px;
   font-size: 14px;
-  line-height: 1.65;
+  line-height: 1.75;
   color: var(--text-dim);
   padding-left: 2px;
 }
@@ -1133,6 +1243,7 @@
 
 /* 표 — 넓은 표는 가로 스크롤 */
 .case-table-wrap {
+  margin-top: 4px;
   overflow-x: auto;
   border: 1px solid var(--line);
   border-radius: var(--radius);

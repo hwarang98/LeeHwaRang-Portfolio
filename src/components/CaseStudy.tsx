@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion, type Variants } from 'framer-motion'
 import { X, Code, Play, Store, BookOpen, ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Project, LinkLabel, CaseSection, ProjectMedia } from '../data/projects'
 import { youTubeId } from '../utils/youtube'
+import FloatingCaseToc from './FloatingCaseToc'
 
 interface CaseStudyProps {
   project: Project
@@ -194,6 +195,48 @@ export default function CaseStudy({
   const scrollRef = useRef<HTMLDivElement>(null)
   const caseRef = useRef<HTMLDivElement>(null)
 
+  // 상단 tabs 가 화면에서 사라지면 우측 floating TOC 표시
+  const [tocVisible, setTocVisible] = useState(false)
+  const [activeSection, setActiveSection] = useState<string>()
+
+  // tabs 요소를 IntersectionObserver 로 감시(콜백 ref — 프로젝트 전환 시 재관찰).
+  // chrome(상단 52px) 아래로 숨는 시점을 잡기 위해 rootMargin 상단을 깎는다.
+  const tabsObserver = useRef<IntersectionObserver | null>(null)
+  const setTabsRef = useCallback((node: HTMLElement | null) => {
+    tabsObserver.current?.disconnect()
+    if (!node) return
+    tabsObserver.current = new IntersectionObserver(
+      ([entry]) => setTocVisible(!entry.isIntersecting),
+      { root: null, rootMargin: '-60px 0px 0px 0px', threshold: 0 },
+    )
+    tabsObserver.current.observe(node)
+  }, [])
+
+  // 스크롤 위치로 현재 섹션 계산 (chrome 아래 probe 라인을 마지막으로 통과한 섹션)
+  useEffect(() => {
+    const scroller = scrollRef.current
+    if (!scroller) return
+    let raf = 0
+    const compute = () => {
+      raf = 0
+      const probe = 120
+      let current: string | undefined
+      scroller.querySelectorAll<HTMLElement>('[data-section]').forEach((el) => {
+        if (el.getBoundingClientRect().top - probe <= 0) current = el.dataset.section
+      })
+      if (current) setActiveSection(current)
+    }
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(compute)
+    }
+    compute()
+    scroller.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      scroller.removeEventListener('scroll', onScroll)
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [project.id])
+
   // full-screen inspection light — 카드 spotlight 보다 훨씬 넓고 은은한 배경 조명.
   // 마우스 위치를 CSS 변수로 저장하면 .case-full::before radial-gradient 가 따라온다.
   const handleCaseSpotlight = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -216,6 +259,8 @@ export default function CaseStudy({
   }
 
   const hasMedia = !!project.media && project.media.length > 0
+  // 섹션 번호: Media 가 있으면 01 을 차지하므로 project.sections 는 그 다음부터
+  const sectionOffset = hasMedia ? 1 : 0
 
   // 플립 완료 후 나타나는 full-screen case page — opacity 0→1, y 28→0 (닫힐 땐 반대로)
   const view = (
@@ -276,7 +321,7 @@ export default function CaseStudy({
               </h2>
             </motion.header>
 
-            <motion.nav className="case-full__tabs mono" variants={blockVariants}>
+            <motion.nav ref={setTabsRef} className="case-full__tabs mono" variants={blockVariants}>
               {hasMedia && (
                 <button className="case-tab" onClick={() => scrollToSection('media')}>
                   Media
@@ -296,9 +341,10 @@ export default function CaseStudy({
                 className="case-section case-section--media"
                 variants={blockVariants}
               >
-                <h3 className="case-section__label mono">
+                <h3 className="case-section__label">
+                  <span className="case-section__number mono">01</span>
                   <span className="case-section__bullet" />
-                  Media / Videos
+                  <span className="case-section__title">Media / Videos</span>
                 </h3>
                 <MediaGrid media={project.media!} />
               </motion.section>
@@ -346,11 +392,14 @@ export default function CaseStudy({
               </motion.aside>
 
               <motion.div className="case-content" variants={blockVariants}>
-                {project.sections.map((section) => (
+                {project.sections.map((section, i) => (
                   <section key={section.key} data-section={section.key} className="case-section">
-                    <h3 className="case-section__label mono">
+                    <h3 className="case-section__label">
+                      <span className="case-section__number mono">
+                        {String(i + 1 + sectionOffset).padStart(2, '0')}
+                      </span>
                       <span className="case-section__bullet" />
-                      {section.label}
+                      <span className="case-section__title">{section.label}</span>
                     </h3>
                     {section.note && <p className="case-section__note">{section.note}</p>}
                     <SectionBody section={section} />
@@ -361,6 +410,15 @@ export default function CaseStudy({
           </motion.div>
         </AnimatePresence>
       </div>
+
+      <FloatingCaseToc
+        sections={project.sections}
+        hasMedia={hasMedia}
+        activeSection={activeSection}
+        onJump={scrollToSection}
+        visible={tocVisible && !leaving}
+        accent={project.accent}
+      />
     </motion.div>
   )
 
