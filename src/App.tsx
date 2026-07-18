@@ -124,7 +124,7 @@ export default function App() {
             <span className="topbar__mark">◄►</span> UE_CASE_ARCHIVE
           </span>
           <span className="topbar__path mono muted">/LeeHwaRang/portfolio</span>
-          <span className="topbar__ver mono muted">v3.0 · interactive</span>
+          {/*<span className="topbar__ver mono muted">v3.0 · interactive</span>*/}
           <button
             className={`theme-toggle ${theme === 'light' ? 'theme-toggle--light' : ''}`}
             role="switch"

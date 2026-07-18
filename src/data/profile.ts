@@ -3,7 +3,7 @@ export const profile = {
   nameKo: '이화랑',
   role: 'Unreal Engine Client Programmer',
   summary:
-    'GAS 기반 전투 시스템, Motion Matching 로코모션, State Tree AI와 확장 가능한 게임플레이 구조를 구현합니다.',
+    'GAS 기반 전투 시스템, Motion Matching Locomotion, State Tree AI와 확장 가능한 게임플레이 구조를 구현합니다.',
   techKeywords: [
     'GAS',
     'Motion Matching',
