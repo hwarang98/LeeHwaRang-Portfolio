@@ -160,7 +160,7 @@ export default function App() {
 
         <footer className="archive-footer mono muted">
           <span>© {new Date().getFullYear()} LEE HWA RANG</span>
-          <span>Interactive Unreal Case Archive</span>
+          <span>Unreal Case Archive</span>
           <span className="archive-footer__blink">READY_</span>
         </footer>
         </div>
