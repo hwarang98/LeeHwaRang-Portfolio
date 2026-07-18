@@ -1,0 +1,1308 @@
+/* ===========================================================================
+   Interactive Unreal Case Archive — main UI
+   (Three.js 인트로/이펙트와 무관. intro.css 는 건드리지 않는다.)
+   콘솔/시스템 리포트 톤이되, 정적인 터미널 문서처럼 보이지 않게 모션을 넣는다.
+   =========================================================================== */
+
+/* ---------- utilities ---------------------------------------------------- */
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: 'zero' 1;
+}
+.muted {
+  color: var(--text-mute);
+}
+.accent-cyan {
+  color: var(--cyan);
+}
+.accent-amber {
+  color: var(--amber);
+}
+
+/* 인트로 종료 시 메인 UI 등장(scale 0.8→1) — 상단 기준으로 확대 */
+.app-reveal {
+  transform-origin: 50% 0;
+  will-change: transform, opacity;
+}
+
+.archive-app {
+  position: relative;
+  z-index: 1;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 4vw, 44px);
+}
+
+/* ---------- interactive background (React Bits CursorGrid) --------------- */
+/* fixed 배경 레이어. pointer-events:none 이라 클릭을 막지 않으며, CursorGrid 는
+   포인터 이벤트를 window 에서 받는다. 페이지의 유일한 그리드다(중복 제거). */
+.cursor-grid.bg-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ---------- topbar ------------------------------------------------------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 44px;
+  padding: 0 14px;
+  margin-top: 10px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  background: rgba(10, 12, 16, 0.82);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.topbar__brand {
+  color: var(--text);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+.topbar__mark {
+  color: var(--cyan);
+  margin-right: 6px;
+}
+.topbar__path {
+  flex: 1;
+}
+.topbar__ver {
+  white-space: nowrap;
+}
+
+/* ---------- section head ------------------------------------------------- */
+.section {
+  padding: clamp(44px, 7vw, 88px) 0 0;
+}
+.section__head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding-bottom: 20px;
+  margin-bottom: 26px;
+  border-bottom: 1px solid var(--line);
+}
+.section__index {
+  color: var(--amber);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+}
+.section__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(20px, 3vw, 28px);
+  letter-spacing: 0.14em;
+  color: var(--text);
+}
+.section__meta {
+  font-size: 12px;
+  margin-left: auto;
+}
+
+/* ---------- buttons / chips --------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.03em;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.btn:hover {
+  border-color: var(--cyan-dim);
+  color: #eafcfc;
+  background: #0e161a;
+}
+.btn--primary {
+  color: var(--bg-0);
+  background: var(--cyan);
+  border-color: var(--cyan);
+  font-weight: 600;
+}
+.btn--primary:hover {
+  background: #5ad6ca;
+  color: var(--bg-0);
+}
+.btn--sm {
+  padding: 6px 11px;
+  font-size: 12px;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 8px;
+  color: var(--text-dim);
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.icon-btn:hover {
+  color: #eafcfc;
+  border-color: var(--cyan-dim);
+  background: #0e161a;
+}
+.icon-btn--close:hover {
+  color: #ffd9c2;
+  border-color: var(--amber-dim);
+}
+
+.sys-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--text-dim);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.sys-chip--lg {
+  padding: 5px 11px;
+  font-size: 12px;
+}
+.sys-chip::before {
+  content: '#';
+  color: var(--cyan-dim);
+  margin-right: 3px;
+}
+
+.icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.icon-link:hover {
+  color: #eafcfc;
+  border-color: var(--cyan-dim);
+  background: #0e161a;
+}
+
+.status--released {
+  color: var(--cyan);
+}
+.status--in_development {
+  color: var(--amber);
+}
+
+/* ---------- DecryptedText / SpotlightCard (reactbits) -------------------- */
+.rb-decrypted {
+  display: inline-block;
+  white-space: pre-wrap;
+}
+.rb-decrypted__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.decrypt-on {
+  color: inherit;
+}
+.decrypt-off {
+  color: var(--cyan-dim);
+  opacity: 0.85;
+}
+
+.rb-spotlight-card {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.rb-spotlight-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(
+    circle at var(--rb-spot-x, 50%) var(--rb-spot-y, 50%),
+    var(--rb-spot-color, rgba(70, 201, 189, 0.12)),
+    transparent 55%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+.rb-spotlight-card:hover::before {
+  opacity: 1;
+}
+
+/* ---------- LetterGlitch (reactbits) internal --------------------------- */
+.rb-letter-glitch {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+}
+.rb-letter-glitch__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.rb-letter-glitch__vignette-outer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle, transparent 55%, var(--bg-1) 100%);
+}
+.rb-letter-glitch__vignette-center {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle, var(--bg-1) 0%, transparent 55%);
+}
+
+/* =========================================================================
+   1. Hero
+   ========================================================================= */
+.hero {
+  position: relative;
+  padding: clamp(38px, 7vh, 76px) 0 clamp(28px, 5vh, 52px);
+  margin-top: 18px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgba(70, 201, 189, 0.06), transparent 60%),
+    var(--bg-1);
+}
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.13;
+  pointer-events: none;
+}
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  padding: 0 clamp(18px, 3vw, 44px);
+}
+.hero__eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--text-mute);
+  margin: 0 0 22px;
+}
+.hero__grid {
+  display: grid;
+  grid-template-columns: 1.12fr 0.88fr;
+  gap: clamp(24px, 4vw, 52px);
+  align-items: center;
+}
+.hero__name {
+  margin: 0 0 12px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(34px, 6vw, 60px);
+  line-height: 1.02;
+  letter-spacing: 0.02em;
+  color: #eef2f7;
+}
+.hero__role {
+  margin: 0 0 18px;
+  font-size: 14px;
+  letter-spacing: 0.03em;
+  color: var(--text-dim);
+}
+.hero__summary {
+  max-width: 46ch;
+  margin: 0 0 20px;
+  color: var(--text-dim);
+  font-size: 15px;
+  line-height: 1.7;
+}
+.hero__keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 26px;
+}
+.kw-chip {
+  padding: 4px 10px;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--cyan);
+  background: rgba(70, 201, 189, 0.06);
+  border: 1px solid rgba(70, 201, 189, 0.25);
+  border-radius: 2px;
+}
+.hero__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* console panel (Hero boot log) */
+.console-panel {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--panel);
+  overflow: hidden;
+  box-shadow: 0 20px 60px -30px rgba(0, 0, 0, 0.8);
+}
+.console-panel__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  font-size: 11.5px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-2);
+}
+.console-panel__lights {
+  display: inline-flex;
+  gap: 6px;
+}
+.console-panel__lights i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--line-strong);
+}
+.console-panel__lights i:first-child {
+  background: #3a2a2a;
+}
+.console-panel__body {
+  padding: 16px 14px;
+  font-size: 13px;
+  line-height: 2;
+  min-height: 200px;
+}
+.boot-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dim);
+}
+.boot-line__caret {
+  color: var(--cyan);
+  flex-shrink: 0;
+}
+.boot-line--ok {
+  color: var(--text);
+}
+.boot-line__tag {
+  margin-left: auto;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  color: var(--cyan);
+}
+.cursor-block {
+  display: inline-block;
+  width: 8px;
+  height: 15px;
+  background: var(--cyan);
+  animation: blink 1.1s steps(1) infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* =========================================================================
+   2. Project Grid — Unreal system report cards
+   ========================================================================= */
+.archive {
+  position: relative;
+}
+.archive__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  transition: opacity 0.25s ease;
+}
+/* 플립 전환 중 그리드 비활성 + 선택 카드 외 디밍 */
+.archive__grid--busy {
+  pointer-events: none;
+}
+.archive__grid--busy .report-card:not(.report-card--flip) {
+  opacity: 0.18;
+  transition: opacity 0.3s ease;
+}
+
+/* 그리드 슬롯 — 클릭 타깃 + hover lift (flip transform 과 분리) */
+.report-card-slot {
+  display: block;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.report-card-slot:hover {
+  transform: translateY(-2px);
+}
+
+.report-card {
+  --acc: var(--cyan);
+  --acc-rgb: 70, 201, 189;
+  position: relative;
+  padding: 20px 20px 16px;
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transform-origin: center;
+  will-change: transform;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.report-card--cyan {
+  --acc: var(--cyan);
+  --acc-rgb: 70, 201, 189;
+}
+.report-card--amber {
+  --acc: var(--amber);
+  --acc-rgb: 217, 160, 101;
+}
+.report-card:hover,
+.report-card--active,
+.report-card--flip {
+  border-color: rgba(var(--acc-rgb), 0.5);
+}
+/* 플립 중에도 neon accent stroke 유지 */
+.report-card--flip {
+  border-color: rgba(var(--acc-rgb), 0.7);
+  box-shadow: 0 0 0 1px rgba(var(--acc-rgb), 0.25), 0 0 34px -6px rgba(var(--acc-rgb), 0.35);
+}
+
+/* 앞면(텍스트) — scaleX 로 접히는 content */
+.report-card__face {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transform-origin: center;
+  will-change: transform;
+}
+
+/* 미디어면 — 대표 썸네일 (카드 전체를 채움) */
+.report-card__media {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  transform-origin: center;
+  overflow: hidden;
+  background: linear-gradient(150deg, rgba(var(--acc-rgb), 0.35), #0b0e12 70%);
+  will-change: transform;
+}
+.report-card__media-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.35); /* hqdefault(4:3) 레터박스 크롭 */
+}
+.report-card__media-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(8, 9, 12, 0.15) 40%, rgba(8, 9, 12, 0.7));
+}
+.report-card__media-label {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 3px 9px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--acc);
+  background: rgba(8, 9, 12, 0.6);
+  border: 1px solid rgba(var(--acc-rgb), 0.5);
+  border-radius: 2px;
+}
+.report-card__media-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #eafcfc;
+}
+.report-card__media-play svg {
+  width: 50px;
+  height: 50px;
+  padding: 12px;
+  border-radius: 50%;
+  background: rgba(8, 9, 12, 0.5);
+  border: 1px solid rgba(var(--acc-rgb), 0.6);
+}
+/* media 면 등장 시 한 번 지나가는 얇은 scan line */
+.report-card__media-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 38%;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(var(--acc-rgb), 0.3), transparent);
+  mix-blend-mode: screen;
+  animation: card-media-scan 0.6s ease-out 0.05s 1 both;
+}
+@keyframes card-media-scan {
+  0% {
+    transform: translateY(-120%);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(280%);
+    opacity: 0;
+  }
+}
+
+/* 코너 브래킷 */
+.report-card__corner {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  border: 1px solid rgba(var(--acc-rgb), 0.45);
+  opacity: 0.4;
+  transition: opacity 0.2s ease, width 0.2s ease, height 0.2s ease;
+  pointer-events: none;
+}
+.report-card__corner--tl {
+  top: 8px;
+  left: 8px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.report-card__corner--br {
+  bottom: 8px;
+  right: 8px;
+  border-left: 0;
+  border-top: 0;
+}
+.report-card:hover .report-card__corner {
+  opacity: 0.8;
+  width: 15px;
+  height: 15px;
+}
+
+.report-card__glow {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(
+    320px circle at 80% 0%,
+    rgba(var(--acc-rgb), 0.06),
+    transparent 60%
+  );
+  pointer-events: none;
+}
+.report-card:hover .report-card__glow {
+  opacity: 1;
+}
+
+.report-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.report-card__index {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--acc);
+}
+.report-card__status {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+.report-card__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(19px, 2.4vw, 23px);
+  letter-spacing: 0.01em;
+  color: #eef2f7;
+}
+.report-card__subtitle {
+  color: var(--amber);
+  font-weight: 500;
+  font-size: 0.68em;
+}
+.report-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--text-mute);
+}
+.report-card__ue {
+  color: var(--text-dim);
+}
+.report-card__sep {
+  color: var(--line-strong);
+}
+.report-card__summary {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+.report-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* system load bar (hover 시 채워짐) */
+.report-card__load {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+}
+.report-card__load-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-mute);
+  white-space: nowrap;
+}
+.report-card__load-track {
+  position: relative;
+  flex: 1;
+  height: 3px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.report-card__load-fill {
+  position: absolute;
+  inset: 0;
+  width: 18%;
+  background: linear-gradient(90deg, rgba(var(--acc-rgb), 0.3), var(--acc));
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.report-card:hover .report-card__load-fill,
+.report-card--active .report-card__load-fill {
+  width: 100%;
+}
+
+.report-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.report-card__links {
+  display: flex;
+  gap: 7px;
+}
+.report-card__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  color: var(--text-mute);
+  transition: color 0.2s ease, gap 0.2s ease;
+}
+.report-card:hover .report-card__open {
+  color: var(--acc);
+  gap: 8px;
+}
+
+/* =========================================================================
+   3. Expanded Case Study View
+   ========================================================================= */
+/* document.body 로 portal 되는 완전 full-screen 케이스 뷰.
+   불투명하게 viewport 전체를 덮어 뒤쪽 grid/section 이 절대 비치지 않는다. */
+.case-full {
+  --acc: var(--cyan);
+  --acc-rgb: 70, 201, 189;
+  position: fixed;
+  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 9999;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-0);
+  background-image: radial-gradient(120% 80% at 50% -10%, rgba(var(--acc-rgb), 0.07), transparent 60%);
+  overflow: hidden;
+}
+
+.case-full--cyan {
+  --acc: var(--cyan);
+  --acc-rgb: 70, 201, 189;
+}
+.case-full--amber {
+  --acc: var(--amber);
+  --acc-rgb: 217, 160, 101;
+}
+
+/* 카드 neon stroke 가 이어지는 full-screen frame line */
+.case-full__frame {
+  position: absolute;
+  inset: 11px;
+  z-index: 3;
+  pointer-events: none;
+  border: 1px solid rgba(var(--acc-rgb), 0.38);
+  border-radius: 5px;
+  box-shadow: inset 0 0 70px -34px rgba(var(--acc-rgb), 0.5);
+}
+
+.case-full__chrome {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 52px;
+  padding: 0 clamp(14px, 3vw, 34px);
+  border-bottom: 1px solid var(--line);
+  background: rgba(10, 12, 16, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 4;
+}
+.case-full__brand {
+  flex: 1;
+  text-align: center;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.case-full__nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.case-full__counter {
+  font-size: 11px;
+  color: var(--text-mute);
+  margin-right: 4px;
+}
+
+.case-full__scroll {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+.case-full__content {
+  max-width: 1520px;
+  margin: 0 auto;
+  padding: clamp(22px, 3.5vw, 44px) clamp(16px, 4vw, 56px) 72px;
+}
+.case-full__head {
+  margin-bottom: 22px;
+}
+.case-full__id {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+}
+.case-full__title {
+  margin: 8px 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(28px, 5vw, 48px);
+  letter-spacing: 0.01em;
+  color: #eef2f7;
+}
+.case-full__subtitle {
+  color: var(--amber);
+  font-weight: 500;
+  font-size: 0.55em;
+}
+
+/* 섹션 탭 — 한 줄 가로 스크롤 (여러 줄로 접히지 않음) */
+.case-full__tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  margin-bottom: 26px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+.case-full__tabs::-webkit-scrollbar {
+  height: 6px;
+}
+.case-tab {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  padding: 6px 12px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.case-tab:hover {
+  color: #eafcfc;
+  border-color: var(--cyan-dim);
+}
+
+.case-full__body {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+
+/* meta sidebar — 전체 스크롤 안에서 sticky */
+.case-meta {
+  position: sticky;
+  top: 4px;
+  padding: 0 24px 0 0;
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.case-meta__row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.case-meta__k {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--text-mute);
+}
+.case-meta__v {
+  font-size: 13.5px;
+  color: var(--text);
+  line-height: 1.5;
+}
+.case-meta__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.case-meta__links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+/* full content — 스크롤은 상위 .case-full__scroll 이 담당 */
+.case-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.case-section {
+  scroll-margin-top: 12px;
+}
+.case-section__label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 12px;
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  color: var(--acc, var(--amber));
+}
+.case-section__bullet {
+  width: 6px;
+  height: 6px;
+  background: currentColor;
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+.case-section__note {
+  margin: -4px 0 14px;
+  padding-left: 15px;
+  border-left: 2px solid var(--line-strong);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+.case-section__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.case-section__log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.case-log-line {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-dim);
+  padding-left: 2px;
+}
+.case-log-line__no {
+  flex-shrink: 0;
+  color: var(--cyan-dim);
+  font-size: 11px;
+  padding-top: 3px;
+}
+.case-log-line__text {
+  border-left: 1px solid var(--line);
+  padding-left: 12px;
+}
+/* 불릿 섹션 내 소제목 */
+.case-log-head {
+  list-style: none;
+  margin: 16px 0 4px;
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  color: var(--amber);
+}
+.case-log-head:first-child {
+  margin-top: 0;
+}
+
+/* 표 — 넓은 표는 가로 스크롤 */
+.case-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-1);
+}
+.case-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.case-table th,
+.case-table td {
+  padding: 10px 13px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  white-space: pre-line; /* 셀 내 \n 유지 */
+  word-break: break-word;
+}
+.case-table th:last-child,
+.case-table td:last-child {
+  border-right: 0;
+}
+.case-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.case-table thead th {
+  position: sticky;
+  top: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--amber);
+  background: var(--panel-2);
+  border-bottom-color: var(--line-strong);
+  white-space: nowrap;
+}
+.case-table tbody td:first-child {
+  color: var(--text);
+  font-weight: 500;
+}
+.case-table tbody tr:hover td {
+  background: rgba(70, 201, 189, 0.03);
+}
+/* key-value 표(헤더 없음) — 첫 열을 라벨처럼 */
+.case-table--kv td:first-child {
+  width: 152px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  background: var(--panel-2);
+  white-space: nowrap;
+}
+.case-table--kv td:last-child {
+  color: var(--text);
+}
+
+/* Media / Videos 섹션 — 상세의 핵심 자료, 전체 폭 */
+.case-section--media {
+  margin-bottom: 34px;
+}
+.case-media {
+  display: grid;
+  gap: 18px;
+}
+/* 1개면 전체 폭(최대 760px), 2개 이상이면 2열 */
+.case-media--single {
+  grid-template-columns: minmax(0, 760px);
+}
+.case-media--multi {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.media-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.media-card:hover {
+  border-color: rgba(var(--acc-rgb), 0.55);
+  box-shadow: 0 0 0 1px rgba(var(--acc-rgb), 0.12), 0 18px 44px -26px rgba(0, 0, 0, 0.8);
+}
+.media-card__thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: radial-gradient(120% 120% at 50% 40%, #141a20, #0c0f13);
+  overflow: hidden;
+}
+.media-card__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* maxresdefault(16:9)는 확대 거의 불필요 */
+  transform: scale(1.05);
+  transition: transform 0.3s ease, filter 0.3s ease;
+  filter: saturate(0.95) brightness(0.9);
+}
+/* hqdefault(4:3) fallback 만 상하 여백을 가리도록 크롭 */
+.media-card__img--sd {
+  transform: scale(1.34);
+}
+.media-card:hover .media-card__img {
+  filter: saturate(1) brightness(1.02);
+}
+.media-card:hover .media-card__img--sd {
+  transform: scale(1.38);
+}
+.media-card__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(8, 9, 12, 0.1) 40%, rgba(8, 9, 12, 0.62));
+  pointer-events: none;
+}
+.media-card__badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 3px 9px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--acc);
+  background: rgba(8, 9, 12, 0.6);
+  border: 1px solid rgba(var(--acc-rgb), 0.4);
+  border-radius: 2px;
+  backdrop-filter: blur(3px);
+}
+.media-card__play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #eafcfc;
+  opacity: 0.78;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.media-card__play svg {
+  width: 52px;
+  height: 52px;
+  padding: 12px;
+  border-radius: 50%;
+  background: rgba(8, 9, 12, 0.5);
+  border: 1px solid rgba(var(--acc-rgb), 0.6);
+  backdrop-filter: blur(2px);
+}
+.media-card:hover .media-card__play {
+  opacity: 1;
+  transform: scale(1.05);
+}
+.media-card__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px 14px;
+}
+.media-card__title {
+  font-size: 14.5px;
+  color: var(--text);
+}
+.media-card__cue {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-mute);
+  white-space: nowrap;
+}
+.media-card:hover .media-card__cue {
+  color: var(--acc);
+}
+
+/* =========================================================================
+   Profile / Contact
+   ========================================================================= */
+.profile-card {
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  padding: clamp(22px, 3vw, 34px);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 28px;
+  align-items: center;
+}
+.profile-card__rows {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.profile-row {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  align-items: baseline;
+  gap: 16px;
+}
+.profile-row__label {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+.profile-row__value {
+  font-size: 16px;
+  color: var(--text);
+}
+a.profile-row__value:hover {
+  color: var(--cyan);
+}
+.profile-card__links {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 150px;
+}
+
+/* =========================================================================
+   footer
+   ========================================================================= */
+.archive-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  align-items: center;
+  margin: 72px 0 28px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+}
+.archive-footer__blink {
+  margin-left: auto;
+  color: var(--cyan);
+  animation: blink 1.4s steps(1) infinite;
+}
+
+/* =========================================================================
+   responsive
+   ========================================================================= */
+@media (max-width: 900px) {
+  .hero__grid {
+    grid-template-columns: 1fr;
+  }
+  .archive__grid {
+    grid-template-columns: 1fr;
+  }
+  .case-full__body {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .case-meta {
+    position: static;
+    padding: 0 0 16px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 14px 22px;
+  }
+  .case-meta__links {
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  .case-media--single,
+  .case-media--multi {
+    grid-template-columns: 1fr;
+  }
+  .profile-card {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 560px) {
+  .topbar__path {
+    display: none;
+  }
+  .section__meta {
+    width: 100%;
+    margin-left: 0;
+  }
+  .case-full__chrome {
+    padding: 0 14px;
+  }
+  .case-full__brand {
+    display: none;
+  }
+}

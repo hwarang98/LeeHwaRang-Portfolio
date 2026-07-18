@@ -1,0 +1,156 @@
+/* ===========================================================================
+   BootIntro — Unreal U glyph 부트 인트로 오버레이
+   메인 포트폴리오 위를 덮는 fixed 레이어. 종료 시 언마운트된다.
+   =========================================================================== */
+
+.boot-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* 어두운 배경 레이어 — disperse 시 이 레이어만 걷혀 메인이 드러난다 (canvas 는 유지) */
+.boot-intro__bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 100% at 50% 42%, #0d0f13 0%, #08090c 70%);
+  opacity: 1;
+  transition: opacity 0.6s ease;
+}
+
+/* 종료 전환: 배경/장식 레이어는 걷히고, 파티클(canvas)은 계속 보이며 퍼진다 */
+.boot-intro--dispersing {
+  pointer-events: none;
+}
+.boot-intro--dispersing .boot-intro__bg,
+.boot-intro--dispersing .boot-intro__pool,
+.boot-intro--dispersing .boot-intro__vignette,
+.boot-intro--dispersing .boot-intro__caption,
+.boot-intro--dispersing .boot-intro__skip {
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+
+.boot-intro__stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.boot-intro__stage canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* 중앙 스포트라이트 풀 — 심볼 뒤로 은은하게 떨어지는 무대 조명 느낌 */
+.boot-intro__pool {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    46% 42% at 50% 46%,
+    rgba(70, 201, 189, 0.10) 0%,
+    rgba(70, 201, 189, 0.04) 34%,
+    transparent 68%
+  );
+  animation: intro-pool-in 1.2s ease 0.5s both;
+}
+
+@keyframes intro-pool-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 외곽을 어둡게 눌러 심볼에 집중 */
+.boot-intro__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 46%,
+    transparent 34%,
+    rgba(8, 9, 12, 0.72) 100%
+  );
+}
+
+.boot-intro__caption {
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: #5c6675;
+  text-transform: uppercase;
+  animation: intro-caption-in 0.6s ease 1s both;
+}
+
+.boot-intro__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #46c9bd;
+  box-shadow: 0 0 10px rgba(70, 201, 189, 0.7);
+  animation: intro-dot-blink 1.3s steps(1) infinite;
+}
+
+.boot-intro__skip {
+  position: absolute;
+  right: clamp(16px, 4vw, 40px);
+  bottom: clamp(16px, 4vw, 36px);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: #8b96a5;
+  background: rgba(13, 15, 19, 0.7);
+  border: 1px solid #2a333f;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.boot-intro__skip:hover {
+  color: #eafcfc;
+  border-color: #1a8a8c;
+  background: rgba(14, 22, 26, 0.85);
+}
+
+@keyframes intro-dot-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@keyframes intro-caption-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-intro__dot,
+  .boot-intro__caption {
+    animation: none;
+  }
+}

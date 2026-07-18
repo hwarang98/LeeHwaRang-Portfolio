@@ -1,0 +1,118 @@
+/* ===========================================================================
+   UE Systems Console — global base
+   폰트는 index.html 에서 로드한다 (Space Grotesk / JetBrains Mono / Pretendard).
+   =========================================================================== */
+
+:root {
+  /* palette — 거의 검정에 가까운 콘솔 */
+  --bg-0: #08090c;
+  --bg-1: #0d0f13;
+  --bg-2: #11141a;
+  --panel: #0f1218;
+  --panel-2: #12161d;
+
+  /* lines */
+  --line: #1b212b;
+  --line-soft: #161b23;
+  --line-strong: #2a333f;
+
+  /* text */
+  --text: #cdd4de;
+  --text-dim: #8b96a5;
+  --text-mute: #5c6675;
+
+  /* accents — muted cyan + amber */
+  --cyan: #46c9bd;
+  --cyan-dim: #2f8f88;
+  --amber: #d9a065;
+  --amber-dim: #a9763f;
+
+  --radius: 4px;
+  --radius-lg: 6px;
+
+  --font-display: 'Space Grotesk', 'Pretendard', system-ui, sans-serif;
+  --font-body: 'Pretendard', 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-0);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* 3D 처럼 fixed 로 갇히지 않는다 — 정상 문서 스크롤 */
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* 페이지 배경 그리드는 React Bits CursorGrid(고정 배경 레이어) 하나만 사용한다.
+   (기존 body::before 정적 그리드는 중복이라 제거) */
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+::selection {
+  background: rgba(34, 193, 195, 0.28);
+  color: #eafcfc;
+}
+
+/* scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-0);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 6px;
+  border: 2px solid var(--bg-0);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #33404f;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
