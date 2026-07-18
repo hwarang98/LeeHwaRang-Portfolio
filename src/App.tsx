@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import './App.css'
+import { Sun, Moon } from 'lucide-react'
 import Hero from './components/Hero'
 import ProjectArchive from './components/ProjectArchive'
 import ProfileDock from './components/ProfileDock'
@@ -46,6 +47,26 @@ export default function App() {
   // 메인 UI 등장(scale 0.8→1, opacity 0→1) 트리거. 인트로 종료(확산 시작) 시 켜진다.
   const [revealMain, setRevealMain] = useState(false)
 
+  // 다크/라이트 테마 — 초기값은 index.html 인라인 스크립트가 이미 적용한 data-theme 를 읽는다.
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    if (typeof document !== 'undefined') {
+      const t = document.documentElement.getAttribute('data-theme')
+      if (t === 'light' || t === 'dark') return t
+    }
+    return 'dark'
+  })
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', theme === 'light' ? '#eef1f6' : '#08090c')
+    try {
+      localStorage.setItem('theme', theme)
+    } catch {
+      /* localStorage 접근 불가 환경 무시 */
+    }
+  }, [theme])
+
   // 인트로가 없는 환경(reduced-motion / WebGL 미지원)에서는 바로 등장시킨다.
   useEffect(() => {
     if (!introActive) setRevealMain(true)
@@ -61,7 +82,7 @@ export default function App() {
     <>
       <CursorGrid
         className="bg-grid"
-        color="#46c9bd"
+        color={theme === 'light' ? '#0f8378' : '#46c9bd'}
         cellSize={54}
         radius={170}
         falloff="smooth"
@@ -102,8 +123,24 @@ export default function App() {
           <span className="topbar__brand mono">
             <span className="topbar__mark">◄►</span> UE_CASE_ARCHIVE
           </span>
-          <span className="topbar__path mono muted">/hwarang98/portfolio</span>
+          <span className="topbar__path mono muted">/LeeHwaRang/portfolio</span>
           <span className="topbar__ver mono muted">v3.0 · interactive</span>
+          <button
+            className={`theme-toggle ${theme === 'light' ? 'theme-toggle--light' : ''}`}
+            role="switch"
+            aria-checked={theme === 'light'}
+            onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
+            aria-label={theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'}
+            title={theme === 'dark' ? 'LIGHT' : 'DARK'}
+          >
+            <span className="theme-toggle__track" aria-hidden="true">
+              <Moon size={11} />
+              <Sun size={11} />
+            </span>
+            <span className="theme-toggle__knob" aria-hidden="true">
+              {theme === 'dark' ? <Moon size={12} /> : <Sun size={12} />}
+            </span>
+          </button>
         </header>
 
         <main className="archive-main">

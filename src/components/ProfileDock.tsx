@@ -27,7 +27,7 @@ export default function ProfileDock() {
         <span className="section__meta mono muted">// operator credentials</span>
       </header>
 
-      <SpotlightCard className="profile-card">
+      <SpotlightCard className="profile-card" tilt>
         <div className="profile-card__rows">
           {rows.map((row) => (
             <div key={row.label} className="profile-row">

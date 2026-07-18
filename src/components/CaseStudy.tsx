@@ -192,6 +192,23 @@ export default function CaseStudy({
   onNext,
 }: CaseStudyProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const caseRef = useRef<HTMLDivElement>(null)
+
+  // full-screen inspection light — 카드 spotlight 보다 훨씬 넓고 은은한 배경 조명.
+  // 마우스 위치를 CSS 변수로 저장하면 .case-full::before radial-gradient 가 따라온다.
+  const handleCaseSpotlight = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = caseRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    el.style.setProperty('--case-spot-x', `${e.clientX - rect.left}px`)
+    el.style.setProperty('--case-spot-y', `${e.clientY - rect.top}px`)
+    el.style.setProperty(
+      '--case-spot-color',
+      project.accent === 'cyan'
+        ? 'rgba(70, 201, 189, 0.075)'
+        : 'rgba(217, 160, 101, 0.065)',
+    )
+  }
 
   const scrollToSection = (key: string) => {
     const el = scrollRef.current?.querySelector<HTMLElement>(`[data-section="${key}"]`)
@@ -203,6 +220,8 @@ export default function CaseStudy({
   // 플립 완료 후 나타나는 full-screen case page — opacity 0→1, y 28→0 (닫힐 땐 반대로)
   const view = (
     <motion.div
+      ref={caseRef}
+      onMouseMove={handleCaseSpotlight}
       className={`case-full case-full--${project.accent}`}
       initial={{ opacity: 0, y: 28 }}
       animate={{ opacity: leaving ? 0 : 1, y: leaving ? 28 : 0 }}
@@ -211,15 +230,6 @@ export default function CaseStudy({
       aria-modal="true"
       aria-label={`${project.title} case file`}
     >
-      {/* 카드 neon stroke 가 이어지는 full-screen frame line */}
-      <motion.div
-        className="case-full__frame"
-        aria-hidden="true"
-        initial={{ opacity: 0, scale: 1.015 }}
-        animate={{ opacity: leaving ? 0 : 1, scale: 1 }}
-        transition={{ duration: 0.5, ease: EASE, delay: leaving ? 0 : 0.06 }}
-      />
-
       {/* 상단 크롬 — 프로젝트 전환에도 유지 */}
       <div className="case-full__chrome">
         <button className="icon-btn" onClick={onClose} aria-label="닫기 (Esc)">

@@ -27,6 +27,12 @@
   --amber: #d9a065;
   --amber-dim: #a9763f;
 
+  /* semantic (테마별로 바뀌는 값) */
+  --heading: #eef2f7; /* 밝은 제목 텍스트 */
+  --chrome-bg: rgba(10, 12, 16, 0.82); /* topbar / case chrome 반투명 배경 */
+  --hover-fg: #eafcfc; /* 버튼 hover 전경 */
+  --hover-bg: #0e161a; /* 버튼 hover 배경 */
+
   --radius: 4px;
   --radius-lg: 6px;
 
@@ -35,6 +41,48 @@
   --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
 
   color-scheme: dark;
+}
+
+/* ---------- light theme ----------------------------------------------------
+   블루프린트 페이퍼 톤. 다크가 기본이고 data-theme="light" 일 때만 오버라이드.
+   --------------------------------------------------------------------------- */
+:root[data-theme='light'] {
+  --bg-0: #eef1f6;
+  --bg-1: #e6eaf1;
+  --bg-2: #dde3ec;
+  --panel: #f8fafc;
+  --panel-2: #eef2f8;
+
+  --line: #d2dae4;
+  --line-soft: #e0e6ee;
+  --line-strong: #b7c2d0;
+
+  --text: #232c38;
+  --text-dim: #4f5b6b;
+  --text-mute: #74808f;
+
+  /* 밝은 배경에서 대비 확보를 위해 accent 를 어둡게 */
+  --cyan: #0f8378;
+  --cyan-dim: #0c665e;
+  --amber: #a9682a;
+  --amber-dim: #855018;
+
+  --heading: #131a24;
+  --chrome-bg: rgba(247, 249, 252, 0.82);
+  --hover-fg: #f4feff;
+  --hover-bg: #0f8378;
+
+  color-scheme: light;
+}
+
+/* light 테마에서 카드/케이스 accent stroke 색(rgb)도 어둡게 맞춘다 */
+:root[data-theme='light'] .report-card--cyan,
+:root[data-theme='light'] .case-full--cyan {
+  --acc-rgb: 15, 131, 120;
+}
+:root[data-theme='light'] .report-card--amber,
+:root[data-theme='light'] .case-full--amber {
+  --acc-rgb: 169, 104, 42;
 }
 
 *,

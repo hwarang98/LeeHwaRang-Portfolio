@@ -56,7 +56,7 @@
   margin-top: 10px;
   font-size: 12px;
   letter-spacing: 0.04em;
-  background: rgba(10, 12, 16, 0.82);
+  background: var(--chrome-bg);
   backdrop-filter: blur(8px);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -75,6 +75,53 @@
 }
 .topbar__ver {
   white-space: nowrap;
+}
+/* 다크/라이트 토글 스위치 — 슬라이딩 knob + 양끝 해/달 아이콘 */
+.theme-toggle {
+  position: relative;
+  flex-shrink: 0;
+  width: 48px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--bg-2);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.theme-toggle:hover {
+  border-color: var(--cyan-dim);
+}
+.theme-toggle__track {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5px;
+  color: var(--text-mute);
+}
+.theme-toggle__track svg {
+  opacity: 0.5;
+}
+.theme-toggle__knob {
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  color: var(--cyan);
+  transform: translateY(-50%);
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
+}
+.theme-toggle--light .theme-toggle__knob {
+  transform: translate(24px, -50%);
+  color: var(--amber);
 }
 
 /* ---------- section head ------------------------------------------------- */
@@ -125,8 +172,8 @@
 }
 .btn:hover {
   border-color: var(--cyan-dim);
-  color: #eafcfc;
-  background: #0e161a;
+  color: var(--hover-fg);
+  background: var(--hover-bg);
 }
 .btn--primary {
   color: var(--bg-0);
@@ -157,9 +204,9 @@
   transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
 .icon-btn:hover {
-  color: #eafcfc;
+  color: var(--hover-fg);
   border-color: var(--cyan-dim);
-  background: #0e161a;
+  background: var(--hover-bg);
 }
 .icon-btn--close:hover {
   color: #ffd9c2;
@@ -200,9 +247,9 @@
   transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
 .icon-link:hover {
-  color: #eafcfc;
+  color: var(--hover-fg);
   border-color: var(--cyan-dim);
-  background: #0e161a;
+  background: var(--hover-bg);
 }
 
 .status--released {
@@ -257,6 +304,23 @@
 }
 .rb-spotlight-card:hover::before {
   opacity: 1;
+}
+/* 마우스를 따라 카드가 살짝 기우는 3D tilt (프로필 카드 등 opt-in) */
+.rb-spotlight-card--tilt {
+  transform: perspective(1100px) rotateX(var(--rb-rot-x, 0deg)) rotateY(var(--rb-rot-y, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 0.18s ease;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rb-spotlight-card--tilt {
+    transform: none;
+  }
+}
+@media (hover: none) {
+  .rb-spotlight-card--tilt {
+    transform: none;
+  }
 }
 
 /* ---------- LetterGlitch (reactbits) internal --------------------------- */
@@ -330,7 +394,7 @@
   font-size: clamp(34px, 6vw, 60px);
   line-height: 1.02;
   letter-spacing: 0.02em;
-  color: #eef2f7;
+  color: var(--heading);
 }
 .hero__role {
   margin: 0 0 18px;
@@ -455,14 +519,24 @@
   transition: opacity 0.3s ease;
 }
 
-/* 그리드 슬롯 — 클릭 타깃 + hover lift (flip transform 과 분리) */
+/* 그리드 슬롯 — 클릭 타깃 + hover lift + 마우스 따라오는 3D tilt (flip transform 과 분리).
+   scaleX flip 은 안쪽 .report-card 가 담당하고, tilt/lift 는 여기 slot 에서만 처리해 서로 충돌하지 않는다. */
 .report-card-slot {
   display: block;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transform: perspective(900px) rotateX(var(--rb-rot-x, 0deg)) rotateY(var(--rb-rot-y, 0deg))
+    translateY(var(--rb-lift, 0px));
+  transform-style: preserve-3d;
+  transition: transform 0.18s ease;
+  will-change: transform;
 }
 .report-card-slot:hover {
-  transform: translateY(-2px);
+  --rb-lift: -2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .report-card-slot {
+    transform: translateY(var(--rb-lift, 0px));
+  }
 }
 
 .report-card {
@@ -497,10 +571,33 @@
   box-shadow: 0 0 0 1px rgba(var(--acc-rgb), 0.25), 0 0 34px -6px rgba(var(--acc-rgb), 0.35);
 }
 
+/* React Bits SpotlightCard — 마우스를 따라오는 은은한 glow.
+   flip layer(.report-card) 안의 pseudo-element 라서 scaleX flip 시 카드와 함께 움직인다.
+   pointer-events:none 으로 클릭/링크/flip 을 방해하지 않는다. */
+.report-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    420px circle at var(--rb-spot-x, 50%) var(--rb-spot-y, 50%),
+    var(--rb-spot-color, rgba(70, 201, 189, 0.14)),
+    transparent 58%
+  );
+  transition: opacity 0.22s ease;
+}
+.report-card:hover::before,
+.report-card--active::before,
+.report-card--flip::before {
+  opacity: 1;
+}
+
 /* 앞면(텍스트) — scaleX 로 접히는 content */
 .report-card__face {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -589,6 +686,7 @@
 /* 코너 브래킷 */
 .report-card__corner {
   position: absolute;
+  z-index: 2;
   width: 13px;
   height: 13px;
   border: 1px solid rgba(var(--acc-rgb), 0.45);
@@ -617,6 +715,7 @@
 .report-card__glow {
   position: absolute;
   inset: 0;
+  z-index: 0;
   opacity: 0;
   transition: opacity 0.3s ease;
   background: radial-gradient(
@@ -650,7 +749,7 @@
   font-weight: 600;
   font-size: clamp(19px, 2.4vw, 23px);
   letter-spacing: 0.01em;
-  color: #eef2f7;
+  color: var(--heading);
 }
 .report-card__subtitle {
   color: var(--amber);
@@ -765,6 +864,39 @@
   overflow: hidden;
 }
 
+/* full-screen inspection light — case file 내부를 훑는 듯한 아주 은은한 조명.
+   카드 spotlight(420px / 0.14~0.16)보다 훨씬 넓고(560px) 약하다(0.065~0.075).
+   z-index 0 이라 배경 위·콘텐츠(scroll 2 / chrome 4) 아래에 놓여 가독성/클릭을 방해하지 않는다. */
+.case-full::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    560px circle at var(--case-spot-x, 50%) var(--case-spot-y, 35%),
+    var(--case-spot-color, rgba(70, 201, 189, 0.07)),
+    transparent 64%
+  );
+  transition: opacity 0.24s ease;
+}
+.case-full:hover::before {
+  opacity: 1;
+}
+/* 모션 최소화 환경 — 따라오는 transition 만 끈다(spotlight 자체는 유지). */
+@media (prefers-reduced-motion: reduce) {
+  .case-full::before {
+    transition: none;
+  }
+}
+/* 터치/hover 불가 환경에서는 inspection light 비활성화 */
+@media (hover: none) {
+  .case-full::before {
+    display: none;
+  }
+}
+
 .case-full--cyan {
   --acc: var(--cyan);
   --acc-rgb: 70, 201, 189;
@@ -772,17 +904,6 @@
 .case-full--amber {
   --acc: var(--amber);
   --acc-rgb: 217, 160, 101;
-}
-
-/* 카드 neon stroke 가 이어지는 full-screen frame line */
-.case-full__frame {
-  position: absolute;
-  inset: 11px;
-  z-index: 3;
-  pointer-events: none;
-  border: 1px solid rgba(var(--acc-rgb), 0.38);
-  border-radius: 5px;
-  box-shadow: inset 0 0 70px -34px rgba(var(--acc-rgb), 0.5);
 }
 
 .case-full__chrome {
@@ -794,7 +915,7 @@
   height: 52px;
   padding: 0 clamp(14px, 3vw, 34px);
   border-bottom: 1px solid var(--line);
-  background: rgba(10, 12, 16, 0.7);
+  background: var(--chrome-bg);
   backdrop-filter: blur(8px);
   z-index: 4;
 }
@@ -823,7 +944,9 @@
   z-index: 2;
   flex: 1;
   min-height: 0;
+  width: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 .case-full__content {
   max-width: 1520px;
@@ -843,7 +966,7 @@
   font-weight: 700;
   font-size: clamp(28px, 5vw, 48px);
   letter-spacing: 0.01em;
-  color: #eef2f7;
+  color: var(--heading);
 }
 .case-full__subtitle {
   color: var(--amber);
@@ -859,7 +982,9 @@
   margin-bottom: 26px;
   padding-bottom: 14px;
   border-bottom: 1px solid var(--line);
+  max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: thin;
   -webkit-overflow-scrolling: touch;
 }
@@ -879,7 +1004,8 @@
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 .case-tab:hover {
-  color: #eafcfc;
+  color: var(--hover-fg);
+  background: var(--hover-bg);
   border-color: var(--cyan-dim);
 }
 

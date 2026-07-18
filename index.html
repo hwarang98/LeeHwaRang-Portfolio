@@ -24,6 +24,18 @@
     />
 
     <title>LEE HWA RANG // Unreal Engine Systems Console</title>
+
+    <!-- 저장된 테마를 페인트 전에 적용해 FOUC(테마 깜빡임) 방지 -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme')
+          if (t === 'light' || t === 'dark') {
+            document.documentElement.setAttribute('data-theme', t)
+          }
+        } catch (e) {}
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

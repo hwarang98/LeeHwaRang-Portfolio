@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Code, Play, Store, BookOpen, ArrowUpRight } from 'lucide-react'
 import type { Project, LinkLabel } from '../data/projects'
@@ -38,8 +39,50 @@ export default function ProjectCard({ project, onOpen, active, flip = 'idle' }: 
   const showMedia = flip === 'expandMedia' || flip === 'media' || flip === 'shrinkMedia'
   const scaleTarget = flip === 'shrinkFront' || flip === 'shrinkMedia' ? 0.04 : 1
 
+  // React Bits SpotlightCard 효과 —
+  //  1) 마우스 위치를 CSS 변수로 넣어 flip layer 안 ::before spotlight 를 이동시킨다.
+  //  2) 마우스를 따라 카드가 살짝 기우는 3D tilt 를 바깥 slot 에 적용한다.
+  //     (scaleX flip 은 안쪽 .report-card 가 담당하므로 tilt 는 slot 에 걸어 충돌을 피한다.)
+  const cardRef = useRef<HTMLDivElement>(null)
+  const slotRef = useRef<HTMLElement>(null)
+
+  const MAX_TILT = 6 // deg
+
+  const handleSpotlightMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = cardRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+
+    el.style.setProperty('--rb-spot-x', `${x}px`)
+    el.style.setProperty('--rb-spot-y', `${y}px`)
+    el.style.setProperty(
+      '--rb-spot-color',
+      project.accent === 'cyan'
+        ? 'rgba(70, 201, 189, 0.16)'
+        : 'rgba(217, 160, 101, 0.14)'
+    )
+
+    // 마우스 위치(0~1)를 중심 기준 편차로 환산해 tilt 각도 계산
+    const slot = slotRef.current
+    if (!slot || rect.width === 0 || rect.height === 0) return
+    const px = x / rect.width - 0.5
+    const py = y / rect.height - 0.5
+    slot.style.setProperty('--rb-rot-y', `${px * MAX_TILT * 2}deg`)
+    slot.style.setProperty('--rb-rot-x', `${-py * MAX_TILT * 2}deg`)
+  }
+
+  const handleSpotlightLeave = () => {
+    const slot = slotRef.current
+    if (!slot) return
+    slot.style.setProperty('--rb-rot-x', '0deg')
+    slot.style.setProperty('--rb-rot-y', '0deg')
+  }
+
   return (
     <article
+      ref={slotRef}
       className="report-card-slot"
       data-card-id={project.id}
       role="button"
@@ -54,6 +97,9 @@ export default function ProjectCard({ project, onOpen, active, flip = 'idle' }: 
       }}
     >
       <motion.div
+        ref={cardRef}
+        onMouseMove={handleSpotlightMove}
+        onMouseLeave={handleSpotlightLeave}
         className={`report-card report-card--${project.accent} ${
           active ? 'report-card--active' : ''
         } ${flipping ? 'report-card--flip' : ''}`}
