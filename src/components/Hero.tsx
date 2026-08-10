@@ -10,7 +10,7 @@ interface HeroProps {
   onContact: () => void
 }
 
-// 1. Hero — Interactive Unreal Case Archive 진입부.
+// 1. Hero — Interactive Game Client Archive 진입부.
 // Letter Glitch(배경 노이즈) + Decrypted Text(이름/역할)로 동적인 아카이브 느낌.
 export default function Hero({ onViewProjects, onContact }: HeroProps) {
   const [visibleLines, setVisibleLines] = useState(0)
@@ -33,7 +33,7 @@ export default function Hero({ onViewProjects, onContact }: HeroProps) {
       </div>
 
       <div className="hero__inner">
-        <p className="hero__eyebrow mono">// interactive_unreal_case_archive</p>
+        <p className="hero__eyebrow mono">// interactive_game_client_archive</p>
 
         <div className="hero__grid">
           <div className="hero__identity">

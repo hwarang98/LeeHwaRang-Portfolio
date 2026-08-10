@@ -121,7 +121,7 @@ export default function App() {
         <div className="archive-app">
         <header className="topbar">
           <span className="topbar__brand mono">
-            <span className="topbar__mark">◄►</span> UE_CASE_ARCHIVE
+            <span className="topbar__mark">◄►</span> GAME_CLIENT_ARCHIVE
           </span>
           <span className="topbar__path mono muted">/LeeHwaRang/portfolio</span>
           {/*<span className="topbar__ver mono muted">v3.0 · interactive</span>*/}
@@ -160,7 +160,7 @@ export default function App() {
 
         <footer className="archive-footer mono muted">
           <span>© {new Date().getFullYear()} LEE HWA RANG</span>
-          <span>Unreal Case Archive</span>
+          <span>Game Client Archive</span>
           <span className="archive-footer__blink">READY_</span>
         </footer>
         </div>

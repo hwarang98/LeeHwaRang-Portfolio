@@ -33,14 +33,14 @@ const projectGroups: Array<{
 }> = [
   {
     id: 'unreal',
-    eyebrow: 'ENGINE_GROUP / 01',
-    title: 'UNREAL ENGINE SYSTEMS',
+    eyebrow: 'GAME_ENGINE / 01',
+    title: 'GAMEPLAY SYSTEMS / UNREAL',
     description: 'C++ gameplay architecture, GAS combat, StateTree AI, CommonUI, release-ready systems.',
   },
   {
     id: 'unity',
-    eyebrow: 'ENGINE_GROUP / 02',
-    title: 'UNITY / MOBILE SYSTEMS',
+    eyebrow: 'GAME_ENGINE / 02',
+    title: 'MOBILE GAME SYSTEMS / UNITY',
     description: 'Idle RPG progression, BigNumber economy, save/offline loop, editor tooling, balance simulation.',
   },
 ]
