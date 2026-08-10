@@ -357,7 +357,7 @@ export default function CaseStudy({
                   <span className="case-meta__v">{project.role}</span>
                 </div>
                 <div className="case-meta__row">
-                  <span className="case-meta__k mono">UE</span>
+                  <span className="case-meta__k mono">ENGINE</span>
                   <span className="case-meta__v mono">{project.ueVersion}</span>
                 </div>
                 <div className="case-meta__row">

@@ -499,10 +499,70 @@
 }
 
 /* =========================================================================
-   2. Project Grid — Unreal system report cards
+   2. Project Grid — game system report cards
    ========================================================================= */
 .archive {
   position: relative;
+}
+.archive__groups {
+  display: grid;
+  gap: 34px;
+}
+.archive-group {
+  position: relative;
+  padding-top: 18px;
+  border-top: 1px solid color-mix(in srgb, var(--line), transparent 18%);
+}
+.archive-group::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 88px;
+  height: 1px;
+  background: var(--cyan);
+  box-shadow: 0 0 18px rgba(70, 201, 189, 0.3);
+}
+.archive-group--unity::before {
+  background: var(--amber);
+  box-shadow: 0 0 18px rgba(217, 160, 101, 0.28);
+}
+.archive-group__head {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.8fr) minmax(260px, 1.4fr) auto;
+  align-items: end;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+.archive-group__eyebrow {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--cyan);
+}
+.archive-group--unity .archive-group__eyebrow {
+  color: var(--amber);
+}
+.archive-group__title {
+  margin: 0;
+  font-size: clamp(20px, 2.2vw, 28px);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+.archive-group__desc {
+  margin: 0;
+  max-width: 720px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.archive-group__count {
+  justify-self: end;
+  color: var(--muted-2);
+  font-size: 11px;
+  letter-spacing: 0.12em;
 }
 .archive__grid {
   display: grid;
@@ -1499,6 +1559,14 @@ a.profile-row__value:hover {
   }
   .archive__grid {
     grid-template-columns: 1fr;
+  }
+  .archive-group__head {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 8px;
+  }
+  .archive-group__count {
+    justify-self: start;
   }
   .case-full__body {
     grid-template-columns: 1fr;

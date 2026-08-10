@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { MotionConfig } from 'framer-motion'
 import { projects } from '../data/projects'
+import type { ProjectCategory } from '../data/projects'
 import ProjectCard, { type FlipMode } from './ProjectCard'
 import CaseStudy from './CaseStudy'
 import DecryptedText from './reactbits/DecryptedText'
@@ -23,6 +24,26 @@ const REVEAL = 440
 const CLOSE = 300
 const FLIP_OUTA = 180
 const FLIP_OUTB = 200
+
+const projectGroups: Array<{
+  id: ProjectCategory
+  eyebrow: string
+  title: string
+  description: string
+}> = [
+  {
+    id: 'unreal',
+    eyebrow: 'ENGINE_GROUP / 01',
+    title: 'UNREAL ENGINE SYSTEMS',
+    description: 'C++ gameplay architecture, GAS combat, StateTree AI, CommonUI, release-ready systems.',
+  },
+  {
+    id: 'unity',
+    eyebrow: 'ENGINE_GROUP / 02',
+    title: 'UNITY / MOBILE SYSTEMS',
+    description: 'Idle RPG progression, BigNumber economy, save/offline loop, editor tooling, balance simulation.',
+  },
+]
 
 const reducedMotion = () =>
   typeof window !== 'undefined' &&
@@ -142,20 +163,45 @@ export default function ProjectArchive() {
             />
           </h2>
           <span className="section__meta mono muted">
-            // {projects.length} unreal case files — press 1–{projects.length} to enter
+            // {projects.length} game system case files — press 1–{projects.length} to enter
           </span>
         </header>
 
-        <div className={`archive__grid ${phase !== 'idle' ? 'archive__grid--busy' : ''}`}>
-          {projects.map((p, i) => (
-            <ProjectCard
-              key={p.id}
-              project={p}
-              active={selectedIndex === i}
-              flip={flipModeFor(i)}
-              onOpen={() => open(i)}
-            />
-          ))}
+        <div className="archive__groups">
+          {projectGroups.map((group) => {
+            const groupProjects = projects
+              .map((project, index) => ({ project, index }))
+              .filter(({ project }) => project.category === group.id)
+
+            if (groupProjects.length === 0) return null
+
+            return (
+              <section key={group.id} className={`archive-group archive-group--${group.id}`}>
+                <header className="archive-group__head">
+                  <div>
+                    <span className="archive-group__eyebrow mono">{group.eyebrow}</span>
+                    <h3 className="archive-group__title">{group.title}</h3>
+                  </div>
+                  <p className="archive-group__desc">{group.description}</p>
+                  <span className="archive-group__count mono">
+                    {String(groupProjects.length).padStart(2, '0')} CASES
+                  </span>
+                </header>
+
+                <div className={`archive__grid ${phase !== 'idle' ? 'archive__grid--busy' : ''}`}>
+                  {groupProjects.map(({ project, index }) => (
+                    <ProjectCard
+                      key={project.id}
+                      project={project}
+                      active={selectedIndex === index}
+                      flip={flipModeFor(index)}
+                      onOpen={() => open(index)}
+                    />
+                  ))}
+                </div>
+              </section>
+            )
+          })}
         </div>
 
         {caseVisible && selected && selectedIndex !== null && (
