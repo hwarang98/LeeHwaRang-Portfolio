@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Code, Play, Store, BookOpen, ArrowUpRight } from 'lucide-react'
+import { Code, Play, Store, BookOpen, ArrowUpRight, Image as ImageIcon } from 'lucide-react'
 import type { Project, LinkLabel } from '../data/projects'
 import { youTubeId } from '../utils/youtube'
 
@@ -34,6 +34,7 @@ export default function ProjectCard({ project, onOpen, active, flip = 'idle' }: 
   const mediaHref = project.media?.[0]?.href
   const ytId = mediaHref ? youTubeId(mediaHref) : null
   const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null
+  const isImageMedia = (href: string) => /\.(png|jpe?g|webp|avif)$/i.test(href)
 
   const flipping = flip !== 'idle'
   const showMedia = flip === 'expandMedia' || flip === 'media' || flip === 'shrinkMedia'
@@ -174,7 +175,7 @@ export default function ProjectCard({ project, onOpen, active, flip = 'idle' }: 
                   aria-label={`${m.title} (${m.label})`}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <Play size={14} />
+                  {m.kind === 'image' || isImageMedia(m.href) ? <ImageIcon size={14} /> : <Play size={14} />}
                 </a>
               ))}
             </div>

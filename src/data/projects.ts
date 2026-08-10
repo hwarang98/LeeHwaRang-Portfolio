@@ -5,12 +5,23 @@ export interface ProjectLink {
   href: string
 }
 
-export type MediaLabel = 'Gameplay' | 'Implementation' | 'Trailer' | 'Devlog'
+export type MediaLabel =
+  | 'Gameplay'
+  | 'Implementation'
+  | 'Trailer'
+  | 'Devlog'
+  | 'Tooling'
+  | 'Debug'
+  | 'Validation'
+  | 'Tuning'
+
+export type ProjectMediaKind = 'video' | 'image'
 
 export interface ProjectMedia {
   label: MediaLabel
   title: string
   href: string
+  kind?: ProjectMediaKind
   thumbnail?: string
 }
 
@@ -419,7 +430,7 @@ export const projects: Project[] = [
     formTags: ['Single', 'Roguelike', 'Soulslike'],
     role: 'Solo · Gameplay / Combat Systems Programmer',
     summary: '보스 런과 보상 카드로 확장되는 로그라이크 소울라이크. GAS 위의 자세 붕괴·처형·보상 설계.',
-    systemTags: ['GAS Combat', 'Boss Phase', 'Reward Card', 'StateTree AI', 'Posture'],
+    systemTags: ['GAS Combat', 'Boss Phase', 'Reward Card', 'StateTree AI', 'Automation Test', 'Editor Utility'],
     status: 'IN_DEVELOPMENT',
     accent: 'amber',
     sections: [
@@ -446,11 +457,11 @@ export const projects: Project[] = [
           ['팀 (역할)', '1인'],
           [
             '핵심 시스템',
-            'GAS 전투 시스템, 데이터 기반 데미지 계산, 처형 어빌리티, 타겟락, 보스 페이즈 전환, StateTree 보스 AI, 로그라이크 카드 선택, RunState / MetaProgression',
+            'GAS 전투 시스템, 데이터 기반 데미지 계산, 처형 어빌리티, 타겟락, 보스 페이즈 전환, StateTree 보스 AI, 로그라이크 카드 선택, RunState / MetaProgression, 자동화 테스트 / 에디터 유틸리티',
           ],
           [
             '사용 기술',
-            'Gameplay Ability System, Gameplay Tag, Motion Matching, StateTree, GameplayEffect ExecutionCalculation, GameInstanceSubsystem, Editor Module / Slate Tooling',
+            'Gameplay Ability System, Gameplay Tag, Motion Matching, StateTree, GameplayEffect ExecutionCalculation, GameInstanceSubsystem, Automation Test Framework, Editor Module / Slate Tooling',
           ],
           ['레퍼런스', 'Elden Ring, lies of p, Sekiro'],
         ],
@@ -473,6 +484,7 @@ export const projects: Project[] = [
           'ACRunStateSubsystem으로 카드 중첩, 다음 보스 인덱스, 미정산 보상, 첫 클리어 기록을 레벨 전환 너머로 보존하고 Run 종료 시 정산/폐기 경로를 명확히 분리',
           'StateTree Task에서 GameplayTag로 Enemy Ability를 활성화하고 델리게이트 기반으로 종료를 감지해, 긴 몽타주 동안 매 프레임 폴링하지 않는 AI 실행 구조 구성',
           '에디터 전용 모듈에 보스 에셋 검증, 몽타주/StateTree 검사, 라이브 어트리뷰트 편집, 웹 디버그 토글을 묶은 Boss Combat Workbench를 구축해 반복 테스트 속도를 높임',
+          'Automation Test Framework로 StateTree 배선, 보스 에셋, 공격 몽타주, 어트리뷰트 초기화, 체간/가드 계산 공식을 검증해 수동 확인에 의존하던 전투 회귀 테스트를 자동화',
         ],
       },
       {
@@ -530,10 +542,12 @@ export const projects: Project[] = [
           'ACRunStateSubsystem에서 Run 활성 상태, 다음 보스 인덱스, 클리어 보스 수, 획득 카드 스택, 미정산 재화, 첫 클리어 후보를 GameInstance 생명주기로 보관',
           '보스 처치 보상은 즉시 확정 지급하지 않고 PendingCurrencies에 적립한 뒤, 로비로 무사히 복귀하거나 최종 보스를 클리어했을 때 SettleAndEndRun으로 메타 성장에 반영',
           '플레이어 사망 시 AbandonRun으로 미정산 보상과 첫 클리어 후보를 폐기하여 로그라이크의 위험-보상 구조가 시스템적으로 유지되도록 구성',
-          '# 9. StateTree AI / 디버그 툴링',
+          '# 9. StateTree AI / 자동화 테스트 / 에디터 유틸리티',
           'StateTree 전용 Task에서 Enemy Ability AssetTag를 검색해 활성화하고, WaitOwnedTag 또는 Ability Spec 활성 상태를 기준으로 종료를 감지',
+          'AshenCathedral.Assets.StateTreeWiring, BossAssets, AttackMontages, AttributeWiring 자동화 테스트를 구성해 에셋 배선과 데이터 누락을 에디터 테스트 단계에서 검출',
+          'AshenCathedral.Combat.PostureDamage / GuardDamage / BaseValueClamp 테스트로 체간 저항, 체간 붕괴 이벤트, 가드 브레이크, 주기형 GE BaseValue 클램프 같은 전투 공식을 검증',
           'ACWebDebugSubsystem으로 체력, 스태미나, 체간, 어빌리티 활성 구간, GameplayTag 변화, 피격 이벤트를 브라우저 대시보드로 스트리밍할 수 있도록 구성',
-          'Ashen_CathedralEditor 모듈에 보스 에셋 검증, StateTree 검증, 몽타주 감사, 스탯 매트릭스, 라이브 Attribute 주입을 모은 Slate 기반 워크벤치를 추가',
+          'Ashen_CathedralEditor 모듈에 Tools 메뉴에서 열 수 있는 Slate 기반 Boss Combat Workbench를 추가하고, 보스 에셋 검증, StateTree 검증, 몽타주 감사, 스탯 매트릭스, 라이브 Attribute 주입을 한 화면에 통합',
         ],
       },
       {
@@ -594,8 +608,10 @@ export const projects: Project[] = [
           '첫 클리어 기록 역시 PendingClearedBossTags에 보류했다가 정산 시 SaveGame에 반영해, 사망으로 Run을 잃었을 때 기록이 잘못 남지 않도록 처리',
           '# 디버그 / 에디터 툴링',
           'ACWebDebugSubsystem은 Shipping 빌드에서 통째로 빠지는 조건부 디버그 서버로 구성하고, HTTP 정적 서빙과 WebSocket 스트리밍을 통해 전투 타임라인을 브라우저에서 확인',
-          'Boss Combat Workbench에서 PIE 시작/중지, 보스 체력 비율 조정, 강제 페이즈 전환, 웹 디버그 토글, 보스/아레나/몽타주/StateTree 검증을 한 화면에서 수행',
+          'Boss Combat Workbench는 Blueprint Editor Utility Widget 에셋이 아니라 C++ Slate SCompoundWidget 기반 Nomad Tab으로 구현했으며, Level Editor의 Tools 메뉴에서 열 수 있도록 등록',
+          'Workbench에서 맵 열기, PIE 시작/중지, 스테이지 재시작, 보스 체력 비율 조정, 강제 페이즈 전환, 웹 디버그 토글, RunLogs 열기, 보스/아레나/몽타주/StateTree 검증을 한 화면에서 수행',
           'ACBossAssetValidator로 보스 Blueprint의 StartupData, RewardData, AIController, Phase 전환 배선을 검사해 데이터 누락을 런타임 전에 찾을 수 있도록 구성',
+          '자동화 테스트로 StateTree 배선, DecayPair, AttributeWiring, BossAssets, AttackMontages와 체간/가드 계산 공식을 반복 검증해 보스 추가와 밸런스 수정 후 회귀 위험을 줄임',
         ],
       },
       {
@@ -637,10 +653,10 @@ export const projects: Project[] = [
           '문제 — 컷신, TransitionAbility, AI 정지/복구가 얽힌 페이즈 전환에서 콜백 하나가 누락되면 보스가 전환 상태에 갇힐 수 있었습니다.',
           '해결 — 컷신 종료, 어빌리티 종료, MaxTransitionDuration 타임아웃이 모두 동일한 완료 함수로 수렴하도록 만들고, bPhaseTransitionInProgress와 PendingTransitionIndex로 중복 진입을 차단했습니다.',
           '결과 — 연출 실패나 어빌리티 취소 상황에서도 전투가 복구되며, 전환 상태와 최종 사망 상태의 경계가 명확해졌습니다.',
-          '# 9. 보스 데이터 누락을 런타임에서야 발견하는 문제',
-          '문제 — 보스 Blueprint에 StartupData, RewardData, AIController, Phase 설정 중 하나가 빠져도 에디터에서는 바로 드러나지 않아 PIE 중에 흐름이 끊길 수 있었습니다.',
-          '해결 — 에디터 모듈에 BossAssetValidator와 Boss Combat Workbench를 추가해 보스 에셋 배선, StateTree, 몽타주, 어트리뷰트 초기화 데이터를 한 번에 검사하도록 구성했습니다.',
-          '결과 — 보스 추가와 밸런싱 작업에서 반복 확인 비용이 줄었고, 전투 테스트 전에 데이터 결함을 먼저 걸러낼 수 있게 되었습니다.',
+          '# 9. 보스 데이터 누락과 전투 공식 회귀를 수동으로만 확인하던 문제',
+          '문제 — 보스 Blueprint에 StartupData, RewardData, AIController, Phase 설정 중 하나가 빠지거나 체간/가드 계산식이 수정되어도, 기존에는 PIE에서 직접 플레이하기 전까지 문제를 발견하기 어려웠습니다.',
+          '해결 — BossAssetValidator와 Boss Combat Workbench로 에셋 배선, StateTree, 몽타주, 어트리뷰트 초기화 데이터를 즉시 검사하고, Automation Test Framework로 보스 에셋과 전투 공식 테스트를 반복 실행할 수 있게 구성했습니다.',
+          '결과 — 보스 추가와 밸런싱 작업에서 반복 확인 비용이 줄었고, 에셋 누락과 전투 계산 회귀를 실제 플레이 테스트 전에 먼저 걸러낼 수 있게 되었습니다.',
         ],
       },
       {
@@ -660,7 +676,7 @@ export const projects: Project[] = [
           'ACBossPhaseComponent 기반 보스 페이즈 전환, 컷신, 전환 어빌리티, AI 정지/복구, 실패 안전 타이머 구현',
           'DataTable 기반 로그라이크 보상 카드와 Run 단위 효과 적용/회수 구조 구현',
           'ACRunStateSubsystem / MetaProgressionSubsystem으로 레벨 전환을 넘는 카드 스택, 보스 진행도, 미정산 보상 정산 구조 구현',
-          'StateTree Task, WebDebugSubsystem, Editor Workbench를 통해 보스 AI 실행과 전투 디버깅/검증 파이프라인 구축',
+          'StateTree Task, WebDebugSubsystem, 자동화 테스트, Slate 기반 Editor Workbench를 통해 보스 AI 실행과 전투 디버깅/검증 파이프라인 구축',
         ],
       },
     ],
@@ -670,6 +686,42 @@ export const projects: Project[] = [
         label: 'Gameplay',
         title: '게임 플레이 영상',
         href: 'https://youtu.be/p6ewq5JoPP8?si=1343cPG8kCLH6nBR',
+      },
+      {
+        label: 'Tooling',
+        title: 'Boss Combat Workbench',
+        href: '/portfolio-media/ashen/boss-combat-workbench.png',
+        kind: 'image',
+      },
+      {
+        label: 'Debug',
+        title: 'WebDebug 전투 타임라인',
+        href: '/portfolio-media/ashen/web-debug-timeline.png',
+        kind: 'image',
+      },
+      {
+        label: 'Tuning',
+        title: '보스 튜닝 프리뷰',
+        href: '/portfolio-media/ashen/boss-tuning-preview.png',
+        kind: 'image',
+      },
+      {
+        label: 'Tooling',
+        title: 'Attribute Matrix & Live Editor',
+        href: '/portfolio-media/ashen/attribute-matrix-live-editor.png',
+        kind: 'image',
+      },
+      {
+        label: 'Tooling',
+        title: '라이브 어트리뷰트 편집',
+        href: '/portfolio-media/ashen/live-attribute-editor.png',
+        kind: 'image',
+      },
+      {
+        label: 'Validation',
+        title: '아레나 검증 결과',
+        href: '/portfolio-media/ashen/arena-validation.png',
+        kind: 'image',
       },
     ],
   },

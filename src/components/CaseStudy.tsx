@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion, type Variants } from 'framer-motion'
-import { X, Code, Play, Store, BookOpen, ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react'
+import { X, Code, Play, Store, BookOpen, ArrowUpRight, ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react'
 import type { Project, LinkLabel, CaseSection, ProjectMedia } from '../data/projects'
 import { youTubeId } from '../utils/youtube'
 import FloatingCaseToc from './FloatingCaseToc'
@@ -114,15 +114,16 @@ function SectionBody({ section }: { section: CaseSection }) {
 // (maxres 는 720p+ 업로드에만 존재 → Arc 처럼 없는 영상은 hqdefault 로 안정 표시)
 function MediaCard({ m }: { m: ProjectMedia }) {
   const id = youTubeId(m.href)
+  const isImage = m.kind === 'image' || /\.(png|jpe?g|webp|avif)$/i.test(m.href)
   const [src, setSrc] = useState<string | null>(
-    m.thumbnail ?? (id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null),
+    m.thumbnail ?? (id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : isImage ? m.href : null),
   )
   // hires = 16:9 원본(크롭 불필요). hqdefault(4:3)면 false → 살짝 크롭.
-  const [hires, setHires] = useState(!!m.thumbnail)
+  const [hires, setHires] = useState(!!m.thumbnail || isImage)
   const [hidden, setHidden] = useState(false)
 
   useEffect(() => {
-    if (!id || m.thumbnail) return
+    if (!id || m.thumbnail || isImage) return
     let cancelled = false
     const url = `https://img.youtube.com/vi/${id}/maxresdefault.jpg`
     const probe = new Image()
@@ -137,11 +138,11 @@ function MediaCard({ m }: { m: ProjectMedia }) {
     return () => {
       cancelled = true
     }
-  }, [id, m.thumbnail])
+  }, [id, isImage, m.thumbnail])
 
   return (
     <a
-      className="media-card"
+      className={`media-card ${isImage ? 'media-card--image' : 'media-card--video'}`}
       href={m.href}
       target="_blank"
       rel="noreferrer noopener"
@@ -160,12 +161,12 @@ function MediaCard({ m }: { m: ProjectMedia }) {
         <span className="media-card__scrim" aria-hidden="true" />
         <span className="media-card__badge mono">{m.label}</span>
         <span className="media-card__play" aria-hidden="true">
-          <Play size={26} />
+          {isImage ? <ImageIcon size={24} /> : <Play size={26} />}
         </span>
       </div>
       <div className="media-card__meta">
         <span className="media-card__title">{m.title}</span>
-        <span className="media-card__cue mono">FOOTAGE ▸ WATCH</span>
+        <span className="media-card__cue mono">{isImage ? 'IMAGE ▸ VIEW' : 'FOOTAGE ▸ WATCH'}</span>
       </div>
     </a>
   )
